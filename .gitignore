@@ -1,3 +1,10 @@
 p2p-research.xml
 .idea
 testfile.txt.torrent
+
+downloads
+
+*.db
+*.db-shm
+*.db-wal
+*.torrent.*
