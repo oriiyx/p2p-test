@@ -2,3 +2,10 @@
 # Example:
 # *.log
 # tmp/
+
+go.sum
+p2p-research.xml
+.idea
+
+testfile.txt
+testfile.txt.torrent
