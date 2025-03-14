@@ -24,6 +24,8 @@ func seedFile(config Config) error {
 	cfg := torrent.NewDefaultClientConfig()
 	cfg.DataDir = parentDir
 	cfg.SetListenAddr(config.ListenAddr)
+	cfg.DisableIPv6 = true // Add this line if you're having IPv6-related issues
+	cfg.Seed = true        // Add this for the seeder
 
 	// Create a client
 	client, err := torrent.NewClient(cfg)

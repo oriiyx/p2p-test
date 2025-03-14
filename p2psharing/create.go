@@ -75,9 +75,11 @@ func createTorrentFile(filePath, trackerURL string) (string, error) {
 		CreationDate: time.Now().Unix(),
 	}
 
+	var private = true
 	// Add the file to the metainfo
 	info := metainfo.Info{
 		PieceLength: 256 * 1024, // 256 KiB pieces
+		Private:     &private,
 	}
 
 	// Handle single file vs directory differently

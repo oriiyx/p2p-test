@@ -10,7 +10,6 @@ import (
 	"os"
 )
 
-// encryptFile encrypts the source file with the given key and writes it to the destination
 func encryptFile(sourcePath, destPath string, key []byte) error {
 	// Read the source file
 	plaintext, err := ioutil.ReadFile(sourcePath)
@@ -24,14 +23,14 @@ func encryptFile(sourcePath, destPath string, key []byte) error {
 		return err
 	}
 
-	// Create a random IV
-	iv := make([]byte, aes.BlockSize)
+	// Create a random IV (nonce) of the correct size (12 bytes for GCM)
+	iv := make([]byte, 12) // GCM standard nonce size
 	if _, err := io.ReadFull(rand.Reader, iv); err != nil {
 		return err
 	}
 
 	// Create the GCM cipher mode
-	aesgcm, err := cipher.NewGCMWithNonceSize(block)
+	aesgcm, err := cipher.NewGCM(block)
 	if err != nil {
 		return err
 	}
@@ -56,7 +55,6 @@ func encryptFile(sourcePath, destPath string, key []byte) error {
 	return nil
 }
 
-// decryptFile decrypts the source file with the given key and writes it to the destination
 func decryptFile(sourcePath, destPath string, key []byte) error {
 	// Read the encrypted file
 	data, err := ioutil.ReadFile(sourcePath)
@@ -64,12 +62,12 @@ func decryptFile(sourcePath, destPath string, key []byte) error {
 		return err
 	}
 
-	// Extract the IV (first 16 bytes)
-	if len(data) < aes.BlockSize {
+	// Extract the IV (first 12 bytes)
+	if len(data) < 12 {
 		return errors.New("ciphertext too short")
 	}
-	iv := data[:aes.BlockSize]
-	ciphertext := data[aes.BlockSize:]
+	iv := data[:12]
+	ciphertext := data[12:]
 
 	// Create the cipher block
 	block, err := aes.NewCipher(key)
