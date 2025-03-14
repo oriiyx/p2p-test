@@ -3,6 +3,8 @@ package main
 import (
 	"log"
 	"path/filepath"
+	"strconv"
+	"strings"
 
 	"github.com/anacrolix/torrent"
 )
@@ -26,6 +28,11 @@ func seedFile(config Config) error {
 	cfg.SetListenAddr(config.ListenAddr)
 	cfg.DisableIPv6 = true // Add this line if you're having IPv6-related issues
 	cfg.Seed = true        // Add this for the seeder
+	cfg.Debug = true
+
+	port := strings.Split(config.ListenAddr, ":")[1]
+	portInt, _ := strconv.Atoi(port)
+	cfg.ListenPort = portInt
 
 	// Create a client
 	client, err := torrent.NewClient(cfg)

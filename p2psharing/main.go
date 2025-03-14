@@ -21,6 +21,7 @@ type Config struct {
 	KeyHex      string // Hex-encoded encryption/decryption key
 	TrackerURL  string // URL of the tracker
 	ListenAddr  string // Address to listen on
+	SeedAddr    string // Address of the seeder (for download mode)
 }
 
 // AuthorizedUsers Global map of authorized users and their keys
@@ -64,6 +65,7 @@ func parseArgs() Config {
 	keyHex := flag.String("key", "", "Hex-encoded encryption/decryption key")
 	trackerURL := flag.String("tracker", "udp://tracker.opentrackr.org:1337/announce", "URL of the tracker")
 	listenAddr := flag.String("listen", "0.0.0.0:50007", "Address to listen on")
+	seedAddr := flag.String("seed", "127.0.0.1:50007", "Address of the seeder (for download mode)")
 
 	flag.Parse()
 
@@ -96,5 +98,6 @@ func parseArgs() Config {
 		KeyHex:      *keyHex,
 		TrackerURL:  *trackerURL,
 		ListenAddr:  *listenAddr,
+		SeedAddr:    *seedAddr,
 	}
 }

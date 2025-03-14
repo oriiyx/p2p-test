@@ -10,6 +10,12 @@ import (
 	"github.com/anacrolix/torrent"
 )
 
+type InternalAddress string
+
+func (ia *InternalAddress) String() string {
+	return string(*ia)
+}
+
 // downloadFile downloads a file using an encrypted torrent
 func downloadFile(config Config) error {
 	// 1. Decrypt the torrent file
@@ -36,9 +42,13 @@ func downloadFile(config Config) error {
 	// 3. Create a torrent client
 	cfg := torrent.NewDefaultClientConfig()
 	cfg.DataDir = config.OutputDir
-	cfg.Debug = true
+	// cfg.Debug = true
 	cfg.SetListenAddr(config.ListenAddr)
 	cfg.DisableIPv6 = true
+
+	cfg.DisablePEX = false
+	cfg.NoDHT = false
+	// cfg.ListenPort = 0 // Let the system choose a free port
 
 	client, err := torrent.NewClient(cfg)
 	if err != nil {
@@ -51,6 +61,13 @@ func downloadFile(config Config) error {
 	if err != nil {
 		return err
 	}
+
+	addr := InternalAddress(config.SeedAddr)
+	t.AddPeers([]torrent.PeerInfo{
+		{
+			Addr: &addr, // Need to add this to Config struct
+		},
+	})
 
 	// 5. Wait for the torrent to be ready
 	<-t.GotInfo()
@@ -68,6 +85,11 @@ func downloadFile(config Config) error {
 
 	for {
 		stats := t.Stats()
+		log.Printf("total peers: %v", stats.TotalPeers)
+		log.Printf("active peers: %v", stats.ActivePeers)
+		log.Printf("bytes read: %v", stats.BytesRead.Int64())
+		log.Printf("Connected peers: %d", stats.ActivePeers)
+
 		progress := float64(stats.BytesWritten.Int64()) / float64(t.Length()) * 100
 		log.Printf("Progress: %.2f%% (%d/%d bytes)",
 			progress, stats.BytesWritten.Int64(), t.Length())
